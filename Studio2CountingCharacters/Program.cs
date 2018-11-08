@@ -17,7 +17,7 @@ namespace Studio2CountingCharacters
             Console.WriteLine("Counting Character Studio\n");
 
 
-            // Bonus Mission - Inpit from user
+            // Bonus Mission - Input from user
             Console.WriteLine("Do you want to add your sample text? (y/n)");
             string input = Console.ReadLine();
 
@@ -27,6 +27,22 @@ namespace Studio2CountingCharacters
                 sampleText = Console.ReadLine();
             }
 
+            //
+            else
+            {
+                Console.WriteLine("Do you want to use the test.txt file instead? (y/n)");
+                input = Console.ReadLine();
+
+                if (input.ToLower() == "y")
+                {
+                    // Read the file as one string.
+                    sampleText = System.IO.File.ReadAllText(@"D:\Launch Code\LC101\csharp-exercises\Studio2CountingCharacters\test.txt");
+                }
+
+            }
+
+
+            
 
             // Create a new dictionary of integer, with char keys.
             //
