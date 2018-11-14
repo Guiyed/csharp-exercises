@@ -75,6 +75,18 @@ namespace Studio2CountingCharacters
             }
 
 
+                /* Other Way
+             * foreach (char letter in sampleText){
+             *  if (dictionary.ConstainsKey(letter){
+             *      dictionary[letter] = dictionary[letter] +1;
+             *  }
+             *  else{
+             *      dictionary[letter] = 1;
+             *  }
+             * }
+             */
+
+
             
 
 
