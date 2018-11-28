@@ -45,6 +45,7 @@ namespace RestaurantMenu
             Console.WriteLine("El Menu " + menuPrincipal.Name + " es igual al menu " + menuSecundario.Name + "? " + menuPrincipal.Equals(menuSecundario));
             Console.WriteLine(menuPrincipal);
             Console.WriteLine(menuSecundario);
+            Console.WriteLine(menuPrincipal.PrintFormattedMenu());
             /*
             Console.WriteLine("\n\tMenu Version: " + menuPrincipal.MenuVersion + " Last Updated: "+ menuPrincipal.LastUpdated);
             foreach (MenuItem item in menuPrincipal.RestaurantMenu)
@@ -69,8 +70,8 @@ namespace RestaurantMenu
 
             menuPrincipal.UpdateMenu();
             menuPrincipal.AddMenuItem(helado);
-            MenuItem torta = menuPrincipal.GetMenuItem(4);
-            menuPrincipal.DeleteMenuItem(torta);
+            MenuItem torta = menuPrincipal.GetMenuItem(5);
+            //menuPrincipal.DeleteMenuItem(torta);
             menuPrincipal.AddMenuItem(Soup);
 
             Console.WriteLine("El Menu " + menuPrincipal.Name + " es igual al menu " + menuSecundario.Name + "? " + menuPrincipal.Equals(menuSecundario));
@@ -82,6 +83,7 @@ namespace RestaurantMenu
 
             Console.WriteLine("\n---------- Imprimiendo el Menu Pricipal Formateado ----------\n");
             Console.WriteLine(menuPrincipal.PrintFormattedMenu());
+            Console.WriteLine(menuSecundario.PrintFormattedMenu());
 
             Console.ReadLine();
         }
@@ -170,21 +172,34 @@ namespace RestaurantMenu
         public string PrintFormattedMenu()
         {
             string menu;
-            List<string> cat = new List<string>();
-
+            List<string> categories = new List<string>();
+            
+            /*
             foreach (MenuItem x in (from item in this.RestaurantMenu
                                    orderby item.Categoria.Item1 ascending
                                    select item))
                 
             //foreach (MenuItem x in this.RestaurantMenu)
             {
-                if (!cat.Contains(x.Category))
-                    cat.Add(x.Category);
+                if (!categories.Contains(x.Category))
+                    categories.Add(x.Category);
+            }
+            */
+
+            foreach (MenuItem x in (from item in this.RestaurantMenu
+                                    orderby item.Categoria.Item1 ascending
+                                    select item))
+
+            {
+                if (!categories.Contains(x.Categoria.Item2))
+                    categories.Add(x.Categoria.Item2);
             }
 
-            menu = "\n\t\t\t\t\t MENU " + this.Name.ToUpper() + "\n\n";
 
-            foreach (string category in cat)
+            menu = "\n------------------------------------------------------------------------------------------------" +
+                "\n\t\t\t\t\t MENU " + this.Name.ToUpper() + "\n\n";
+            /*
+            foreach (string category in categories)
             {
                 if (MenuItem.option.TryGetValue(category.ToLower(), out string subtitle)) {
                     
@@ -193,7 +208,14 @@ namespace RestaurantMenu
                 {
                     subtitle = "other";
                 }
-                menu += "\n -" + subtitle.ToUpper() +"-";
+                */
+            foreach (string category in categories)
+            {
+                if (!MenuItem.option2.TryGetValue(category.ToLower(), out Tuple<int,string> subtitle))
+                {                                    
+                    subtitle = (4,"Other").ToTuple();
+                }
+                menu += "\n -" + subtitle.Item2.ToUpper() +"-";
 
                 menu += "\n\n";
 
@@ -201,18 +223,19 @@ namespace RestaurantMenu
                                           orderby item.Name ascending
                                           select item))
                 {
-                    if (item.Category == subtitle)
+                    if (item.Categoria.Item2 == subtitle.Item2)
                     {
                         //menu += item.IsNew ? "NEW": "   ";
                         menu += String.Format("   * {0,-70} Price:{1,9:C2}\n", CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.Name) + (item.IsNew ? "  (NEW)" : " "), item.Price);
-                        menu += String.Format("\t {0,-55}\n\n", item.Description);
+                        menu += String.Format("{0}\n\n", WrapText(item.Description,65));
                     }
                 }
                  
 
             }
 
-            menu += "\n\n\t\t\t\t\t\t\tLast Updated: " + this.LastUpdated;
+            menu += "\n\n\t\t\t\t\t\t\tLast Updated: " + this.LastUpdated +
+                "\n------------------------------------------------------------------------------------------------";
 
             return menu;
         }
@@ -255,7 +278,23 @@ namespace RestaurantMenu
             return sortedmenu1.SequenceEqual(sortedmenu2);
         }
 
-       
+        public static string WrapText(string text, int size = 80)
+        {
+            string paragraph ="";
+            var words = text.Split(' ');
+            var lines = words.Skip(1).Aggregate(words.Take(1).ToList(), (l, w) =>
+            {
+                if (l.Last().Length + w.Length >= size)
+                    l.Add(w);
+                else
+                    l[l.Count - 1] += " " + w;
+                return l;
+            });
+
+            foreach (string line in lines)
+                paragraph += "\t" + line + "\n";
+            return paragraph;
+        }
 
 
     }
@@ -266,6 +305,7 @@ namespace RestaurantMenu
     public class MenuItem
     {
         //Properties
+        /*
         internal static readonly Dictionary<string, string> option = new Dictionary<string, string>()
         { {"1","Appetizer" },
             {"first","Appetizer" },            
@@ -288,11 +328,31 @@ namespace RestaurantMenu
          {"4","Other" },
             {"other","Other" }
         };
+        */
 
         internal static readonly Dictionary<string, Tuple<int, string>> option2 = new Dictionary<string, Tuple<int, string>>()
-        { {"1", (4,"Appetizer").ToTuple() },
-          {"2",(2,"Main Course").ToTuple()}
+        { {"1",(1,"Appetizer").ToTuple() },
+            {"first",(1,"Appetizer").ToTuple() },
+            {"apt",(1,"Appetizer").ToTuple() },
+            {"appt",(1,"Appetizer").ToTuple() },
+            {"appetizer",(1,"Appetizer").ToTuple() },
+          {"2",(2,"Main Course").ToTuple() },
+            {"second",(2,"Main Course").ToTuple() },
+            {"mc",(2,"Main Course").ToTuple() },
+            {"main",(2,"Main Course").ToTuple() },
+            {"maincourse",(2,"Main Course").ToTuple() },
+            {"main course",(2,"Main Course").ToTuple() },
+            {"entre",(2,"Main Course").ToTuple() },
+          {"3",(3,"Dessert").ToTuple() },
+            {"third",(3,"Dessert").ToTuple() },
+            {"dess",(3,"Dessert").ToTuple() },
+            {"desrt",(3,"Dessert").ToTuple() },
+            {"dsrt",(3,"Dessert").ToTuple() },
+            {"dessert",(3,"Dessert").ToTuple()},
+          {"4",(4,"Other").ToTuple() },
+            {"other",(4,"Other").ToTuple() }
         };
+    
 
 
 
@@ -302,7 +362,7 @@ namespace RestaurantMenu
         public int ItemId { get; internal set; }
         public double Price { get; internal set; }
         public string Description { get; set; }
-        public string Category{ get; internal set; }
+        //public string Category{ get; internal set; }
         public Tuple<int,string> Categoria { get; internal set; }
         public bool IsNew { get; private set; }
         internal int itemMenuVersion;
@@ -310,6 +370,7 @@ namespace RestaurantMenu
         //Constructors
         public MenuItem(string name, string category)
         {
+            /*
             if (option.TryGetValue(category, out string value))
             {
                 this.Category = value;
@@ -318,6 +379,7 @@ namespace RestaurantMenu
             {
                 this.Category = "other";
             }
+            */
             //test
             if (option2.TryGetValue(category, out Tuple<int, string> value2))
             {
@@ -325,7 +387,7 @@ namespace RestaurantMenu
             }
             else
             {
-                this.Categoria = (3, "error").ToTuple();
+                this.Categoria = (4, "Other").ToTuple();
             }
 
             this.Name = name;
@@ -338,14 +400,15 @@ namespace RestaurantMenu
 
         public MenuItem(string name, string description, double price, string category)
         {
-            if(option.TryGetValue(category, out string value)){                
+            /*
+            if (option.TryGetValue(category, out string value)){                
                 this.Category = value;
             }
             else
             {
                 this.Category = "Other";
             }
-
+            */
             //test
             if (option2.TryGetValue(category, out Tuple<int,string> value2))
             {
@@ -353,7 +416,7 @@ namespace RestaurantMenu
             }
             else
             {
-                this.Categoria = (3,"error").ToTuple();
+                this.Categoria = (4,"Other").ToTuple();
             }
 
             this.Name = name;
@@ -378,8 +441,12 @@ namespace RestaurantMenu
 
         public override string ToString()
         {
-            return(this.Name + "\n   ID: " + this.ItemId + "\n   Descripcion: " + this.Description + "\n   precio: " + this.Price + "\n   Nuevo: " + this.IsNew + 
+            /*
+             * return(this.Name + "\n   ID: " + this.ItemId + "\n   Descripcion: " + this.Description + "\n   precio: " + this.Price + "\n   Nuevo: " + this.IsNew + 
                 "\n   Menu version: " + this.itemMenuVersion + "\n   Categoria: " + this.Category + ".........." + this.Categoria.Item1 + " " + this.Categoria.Item2);
+            */
+            return (this.Name + "\n   ID: " + this.ItemId + "\n   Descripcion: " + this.Description + "\n   precio: " + this.Price + "\n   Nuevo: " + this.IsNew +
+                   "\n   Menu version: " + this.itemMenuVersion + "\n   Categoria: " + this.Categoria.Item1 + "." + this.Categoria.Item2);
         }
 
         public override bool Equals(Object o)
@@ -405,7 +472,9 @@ namespace RestaurantMenu
             return ItemId.GetHashCode();
         }
 
-    }
 
+       
+
+    }
 
 }
