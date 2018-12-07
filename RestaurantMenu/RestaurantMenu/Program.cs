@@ -96,13 +96,16 @@ namespace RestaurantMenu
     public class Menu
     {
         //Properties
+
         private List<MenuItem> menu;
+        public string season;
         public List<MenuItem> RestaurantMenu {
             get { return menu; }
             set { menu = value; }
         }
         public string Name { get; set; }
-        public DateTime LastUpdated { get; internal set; }
+        public DateTime LastUpdated { get; private set; }
+        //string last_updated = DateTime.Now.ToString("hh:mm:ss");
         public int MenuVersion { get; internal set; }
 
         //Constructors 
